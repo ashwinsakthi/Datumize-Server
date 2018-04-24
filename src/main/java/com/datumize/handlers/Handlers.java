@@ -1,8 +1,6 @@
 package com.datumize.handlers;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -13,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.datumize.dtos.AppConstants;
 import com.datumize.dtos.Product;
 import com.datumize.dtos.ProductLoader;
 import com.sun.net.httpserver.HttpExchange;
@@ -139,25 +138,51 @@ public class Handlers {
 					}					
 				}
 				
+				List<Product> prodList = null;
+
 				if (addProdName != null) {
-					cartList.addAll(productList.stream()
-							.filter(product -> product.getName().trim().equalsIgnoreCase(addProdName))
-							.collect(Collectors.toList()));
-					sbf.append("The product "+addProdName+" has been added to the cart.");
-				} else if (removeProdName != null) {
-					/*cartList.removeAll(productList.stream()
-							.filter(product -> product.getCategory().getName().trim().equalsIgnoreCase(removeProdName))
-							.collect(Collectors.toList()));*/
-					cartList.removeIf(product -> product.getName().trim().equalsIgnoreCase(removeProdName));
-					sbf.append("The product "+removeProdName+" has been removed from the cart.");
-				}				
-				if(listCartProds != null){
-					sbf.append("The products in cart are : " + "\n");
-					if(cartList.size()>=1){
-						cartList.forEach(product->sbf.append(product.getName()+"\n"));
-					}else{
-						sbf.append("Empty");
+					prodList = productList.stream()
+							.filter(product -> product.getName().trim()
+									.equalsIgnoreCase(addProdName))
+							.collect(Collectors.toList());
+					if (prodList != null && prodList.size() >= 1) {
+						cartList.addAll(prodList);
+						sbf.append("The product " + addProdName
+								+ " has been added to the cart.");
+					} else {
+						sbf.append("The product " + addProdName
+								+ " cannot be found in our inventory.");
 					}
+
+				} else if (removeProdName != null) {
+
+					Boolean isRemoved = cartList.removeIf(product -> product
+							.getName()
+							.trim().equalsIgnoreCase(removeProdName));
+
+					if (isRemoved) {
+						sbf.append("The product " + removeProdName
+								+ " has been removed from the cart.");
+					} else {
+						sbf.append("The product is not present in the cart.");
+					}
+
+				}				
+				if (listCartProds != null) {
+					if (listCartProds
+							.equalsIgnoreCase(AppConstants.TRUE_VALUE)) {
+						sbf.append("The products in cart are : " + "\n");
+						if (cartList.size() >= 1) {
+							cartList.forEach(product -> sbf
+									.append(product.getName() + "\n"));
+						} else {
+							sbf.append("Empty");
+						}
+					} else {
+						sbf.append(
+								"Please specify corrrect parameters for Listing Products -- listCartProds=true");
+					}
+
 				}
 			}			
 			else {
@@ -172,31 +197,6 @@ public class Handlers {
 
 	}
 	
-	
-	
-
-	public static class EchoPostHandler implements HttpHandler {
-
-		@Override
-		public void handle(HttpExchange he) throws IOException {
-			System.out.println("Served by /echoPost handler...");
-			// parse request
-			Map<String, Object> parameters = new HashMap<String, Object>();
-			InputStreamReader isr = new InputStreamReader(he.getRequestBody(), "utf-8");
-			BufferedReader br = new BufferedReader(isr);
-			String query = br.readLine();
-			parseQuery(query, parameters);
-			// send response
-			String response = "";
-			for (String key : parameters.keySet())
-				response += key + " = " + parameters.get(key) + "\n";
-			he.sendResponseHeaders(200, response.length());
-			OutputStream os = he.getResponseBody();
-			os.write(response.toString().getBytes());
-			os.close();
-
-		}
-	}
 
 	@SuppressWarnings("unchecked")
 	public static void parseQuery(String query, Map<String, Object> parameters) throws UnsupportedEncodingException {
