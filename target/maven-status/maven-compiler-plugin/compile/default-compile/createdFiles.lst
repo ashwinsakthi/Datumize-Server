@@ -1,0 +1,12 @@
+com\datumize\handlers\Handlers$EchoPostHandler.class
+com\datumize\handlers\Handlers$GetProductsByDeptCategoryProd.class
+com\datumize\dtos\Product.class
+com\datumize\handlers\SimpleHttpServer.class
+com\datumize\handlers\Handlers$RootHandler.class
+com\datumize\dtos\Department.class
+com\datumize\handlers\Main.class
+com\datumize\dtos\Cart.class
+com\datumize\dtos\Category.class
+com\datumize\handlers\Handlers$AddRemoveListProducts.class
+com\datumize\dtos\ProductLoader.class
+com\datumize\handlers\Handlers.class
